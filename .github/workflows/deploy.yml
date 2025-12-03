@@ -24,7 +24,7 @@ jobs:
           docker run --rm \
             -e SUPABASE_ACCESS_TOKEN="$SUPABASE_ACCESS_TOKEN" \
             -v "${{ github.workspace }}/supabase:/supabase" \
-            supabase/cli:latest \
+            ghcr.io/supabase/cli:latest \
             functions deploy track \
             --project-id jnlbhiyazvexttfpuxxe \
             --no-verify

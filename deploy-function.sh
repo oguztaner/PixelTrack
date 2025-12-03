@@ -32,15 +32,15 @@ fi
 PROJECT_ID="jnlbhiyazvexttfpuxxe"
 FUNCTION_NAME="track"
 
-echo "📦 Supabase CLI Docker image download ediliyor..."
-docker pull supabase/cli:latest
+echo "📦 Supabase CLI Docker image (ghcr.io) download ediliyor..."
+docker pull ghcr.io/supabase/cli:latest
 
 echo ""
 echo "🚀 Edge Function deploy ediliyor..."
 docker run --rm \
   -e SUPABASE_ACCESS_TOKEN="$SUPABASE_ACCESS_TOKEN" \
   -v "$(pwd)/supabase:/supabase" \
-  supabase/cli:latest \
+  ghcr.io/supabase/cli:latest \
   functions deploy "$FUNCTION_NAME" \
   --project-id "$PROJECT_ID" \
   --no-verify
