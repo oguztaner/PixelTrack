@@ -100,20 +100,28 @@ export const Dashboard: React.FC = () => {
              Sistemin hatasız çalışması ve canlı takibin (realtime) aktif olması için aşağıdaki kodu kopyalayıp Supabase SQL Editor'de çalıştırın:
            </p>
            <pre className="bg-black/50 p-4 rounded-lg overflow-x-auto text-xs font-mono text-green-400 select-all border border-slate-700">
-{`-- 1. Realtime Yayınını Temizle ve Oluştur
-DROP PUBLICATION IF EXISTS supabase_realtime;
-CREATE PUBLICATION supabase_realtime;
+{`-- ===================================================
+-- EMAIL TRACKING SYSTEM - SUPABASE SETUP SCRIPT
+-- ===================================================
+-- Bu script e-posta açılma takip sistemini kurmak için
+-- Supabase SQL Editor'de çalıştırılmalıdır.
 
--- 2. Tabloyu Oluştur (Eğer yoksa)
+-- 1. Tabloyu Oluştur veya Güncelle
 CREATE TABLE IF NOT EXISTS public.tracked_emails (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     tracking_id TEXT NOT NULL UNIQUE,
-    recipient TEXT,
+    recipient TEXT DEFAULT 'Belirtilmedi',
     subject TEXT,
     status TEXT DEFAULT 'sent' CHECK (status IN ('sent', 'opened')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-    opened_at TIMESTAMP WITH TIME ZONE
+    opened_at TIMESTAMP WITH TIME ZONE,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );
+
+-- 2. İndeksler Oluştur (Performans için)
+CREATE INDEX IF NOT EXISTS idx_tracking_id ON public.tracked_emails(tracking_id);
+CREATE INDEX IF NOT EXISTS idx_status ON public.tracked_emails(status);
+CREATE INDEX IF NOT EXISTS idx_created_at ON public.tracked_emails(created_at DESC);
 
 -- 3. RLS (Güvenlik) Ayarlarını Yapılandır
 ALTER TABLE public.tracked_emails ENABLE ROW LEVEL SECURITY;
@@ -124,14 +132,22 @@ DROP POLICY IF EXISTS "Public Access Insert" ON public.tracked_emails;
 DROP POLICY IF EXISTS "Public Access Update" ON public.tracked_emails;
 DROP POLICY IF EXISTS "Public Access Delete" ON public.tracked_emails;
 
--- Herkese tam yetki ver (Demo için)
+-- Herkese tam yetki ver (Demo/Test için - Üretimde güvenliği artırın)
 CREATE POLICY "Public Access Select" ON public.tracked_emails FOR SELECT USING (true);
 CREATE POLICY "Public Access Insert" ON public.tracked_emails FOR INSERT WITH CHECK (true);
 CREATE POLICY "Public Access Update" ON public.tracked_emails FOR UPDATE USING (true);
 CREATE POLICY "Public Access Delete" ON public.tracked_emails FOR DELETE USING (true);
 
--- 4. Tabloyu Realtime Yayınına Ekle
-ALTER PUBLICATION supabase_realtime ADD TABLE public.tracked_emails;`}
+-- 4. Realtime Yayınını Oluştur ve Yapılandır
+DROP PUBLICATION IF EXISTS supabase_realtime;
+CREATE PUBLICATION supabase_realtime;
+
+-- Tabloyu Realtime Yayınına Ekle
+ALTER PUBLICATION supabase_realtime ADD TABLE public.tracked_emails;
+
+-- 5. Başarı Kontrolü
+SELECT 'Kurulum Başarılı! ✓' as status;
+SELECT COUNT(*) as "Mevcut E-postalar" FROM public.tracked_emails;`}
            </pre>
          </div>
       )}
