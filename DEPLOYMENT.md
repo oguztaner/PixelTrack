@@ -79,6 +79,13 @@ git push origin main
 
 # Expected output:
 # ✓ Setup Node.js
+# ✓ Install Supabase CLI via npm
+# ✓ Deploy Edge Functions to Supabase
+# ✓ Verify Deployment
+# ✓ Test Tracking Endpoint
+
+# Not: npm global CLI deprecated, manual deploy seçeneğine geçildi
+```
 # ✓ Install Supabase CLI via apt
 # ✓ Deploy Edge Functions to Supabase
 # ✓ Verify Deployment
