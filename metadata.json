@@ -1,0 +1,5 @@
+{
+  "name": "PixelTrack Pro",
+  "description": "A corporate email tracking dashboard that generates tracking pixels for Outlook/Webmail and visualizes read receipts.",
+  "requestFramePermissions": []
+}
