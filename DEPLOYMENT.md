@@ -63,21 +63,54 @@ Secret: <Supabase'den token al>
 
 ### Step 3: Deploy Edge Function (1 min)
 
+#### Option A: GitHub Actions (Recommended - Automatic)
+
 ```bash
-# Option A: GitHub Actions (Automatic)
 # 1. Repo'da commit & push
-git add SUPABASE_SETUP.sql TESTING_GUIDE.md
-git commit -m "Deploy: Email tracking system"
+git add .
+git commit -m "Deploy: Email tracking system with Edge Functions"
 git push origin main
 
 # 2. GitHub Actions otomatik çalışır
 # Monitor: https://github.com/oguztaner/PixelTrack/actions
 
-# 3. "Deploy to Supabase" workflow başla
-# Status: "deployed" olana kadar bekle
+# 3. "Deploy to Supabase" workflow'u gözlemle
+# Status: "deployed" olana kadar bekle (2-3 dakika)
 
-# Option B: Manual (Supabase CLI)
-supabase functions deploy track --project-id jnlbhiyazvexttfpuxxe
+# Expected output:
+# ✓ Setup Node.js
+# ✓ Install Supabase CLI via apt
+# ✓ Deploy Edge Functions to Supabase
+# ✓ Verify Deployment
+# ✓ Test Tracking Endpoint
+```
+
+#### Option B: Docker-based Manual Deploy
+
+```bash
+# 1. Token'ı set et
+export SUPABASE_ACCESS_TOKEN="your_personal_token_here"
+
+# 2. Script çalıştır
+./deploy-function.sh
+
+# Veya manual:
+docker run --rm \
+  -e SUPABASE_ACCESS_TOKEN="$SUPABASE_ACCESS_TOKEN" \
+  -v "$(pwd)/supabase:/supabase" \
+  supabase/cli:latest \
+  functions deploy track \
+  --project-id jnlbhiyazvexttfpuxxe \
+  --no-verify
+```
+
+#### Option C: Web Console (Easiest for beginners)
+
+```
+1. https://supabase.com/dashboard/project/jnlbhiyazvexttfpuxxe
+2. Edge Functions → Create Function (name: "track")
+3. supabase/functions/track/index.ts kodu paste et
+4. Deploy butonuna tıkla
 ```
 
 ### Step 4: Verify Deployment
@@ -85,14 +118,24 @@ supabase functions deploy track --project-id jnlbhiyazvexttfpuxxe
 ```bash
 # Test 1: Edge Function is responding
 curl -i "https://jnlbhiyazvexttfpuxxe.supabase.co/functions/v1/track?id=test123"
-# Expected: HTTP 200 + image/gif content-type
 
-# Test 2: Database is updated
+# Expected Response:
+# HTTP/1.1 200 OK
+# Content-Type: image/gif
+# [Binary GIF data - 1x1 pixel]
+
+# Test 2: Missing ID parameter (should fail gracefully)
+curl "https://jnlbhiyazvexttfpuxxe.supabase.co/functions/v1/track"
+# Expected: 400 Bad Request - "Missing tracking ID"
+
+# Test 3: Database is updated
 # Login: https://supabase.com/dashboard
-# Check: tracked_emails table populated?
+# Go to: SQL Editor
+# Run: SELECT COUNT(*) FROM public.tracked_emails;
 
-# Test 3: Realtime connected
-# Open app, check browser console
+# Test 4: Realtime connected
+# Open app in browser: http://localhost:5173
+# Press F12 → Console
 # Should see: "Successfully subscribed to database changes"
 ```
 
