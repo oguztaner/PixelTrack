@@ -16,24 +16,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Supabase CLI via npm
-        run: |
-          npm install -g supabase
-
-      - name: Deploy Edge Functions to Supabase
+      - name: Deploy Edge Functions to Supabase (Docker)
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          SUPABASE_PROJECT_ID: jnlbhiyazvexttfpuxxe
         run: |
           echo "Deploying Edge Function: track"
-          supabase functions deploy track \
+          docker run --rm \
+            -e SUPABASE_ACCESS_TOKEN="$SUPABASE_ACCESS_TOKEN" \
+            -v "${{ github.workspace }}/supabase:/supabase" \
+            supabase/cli:latest \
+            functions deploy track \
             --project-id jnlbhiyazvexttfpuxxe \
-            --no-verify 2>&1 || echo "Deployment may require additional setup"
+            --no-verify
 
       - name: Verify Deployment
         run: |
